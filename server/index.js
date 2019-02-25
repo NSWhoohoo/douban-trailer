@@ -1,15 +1,17 @@
 const Koa = require('Koa')
-const App = new Koa()
-const { htmlTpl, ejsTpl, pugTpl } = require('./tpl')
-// const ejs = require('ejs')
-const pug = require('pug')
+const app = new Koa()
+const views = require('koa-views')
+const { resolve } = require('path')
 
-App.use(async (ctx, next) => {
-    ctx.type = 'text/html; charset=utf-8'
-    ctx.body = pug.render(pugTpl, {
-        you: 'luke',
+app.use(views(resolve(__dirname, './views'), {
+    extension: 'pug'
+}))
+
+app.use(async (ctx, next) => {
+    await ctx.render('index', {
+        you: 'Luke',
         me: 'HW'
     })
 })
-App.listen('4455')
+app.listen('4455')
 
