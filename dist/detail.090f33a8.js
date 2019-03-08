@@ -114,6 +114,18 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _reactRouterDom = require("react-router-dom");
+
+var _antd = require("antd");
+
+var _request = _interopRequireDefault(require("../../lib/request"));
+
+var _moment = _interopRequireDefault(require("moment"));
+
+require("moment/locale/zh-cn");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -134,21 +146,131 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+_moment.default.locale('zh-cn');
+
+var TabPane = _antd.Tabs.TabPane;
+var DPlayer = window.DPlayer;
+var site = 'http://pnlbsdu7j.bkt.clouddn.com/';
+
+var callback = function callback(key) {
+  console.log(key);
+};
+
 var Detail =
 /*#__PURE__*/
 function (_Component) {
   _inherits(Detail, _Component);
 
-  function Detail() {
+  function Detail(props) {
+    var _this;
+
     _classCallCheck(this, Detail);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Detail).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Detail).call(this, props));
+
+    _this._getMovieDetail = function () {
+      (0, _request.default)({
+        method: 'get',
+        url: "/api/v0/movies/".concat(_this.state._id)
+      }).then(function (res) {
+        var movie = res.movie;
+        var relativeMovies = res.relativeMovies;
+        var video = site + movie.videoKey;
+        var pic = site + movie.coverKey;
+
+        _this.setState({
+          movie: movie,
+          relativeMovies: relativeMovies
+        }, function () {
+          _this.player = new DPlayer({
+            container: document.getElementById('videoPlayer'),
+            screenshot: true,
+            video: {
+              url: video,
+              pic: pic,
+              thumbnails: pic
+            }
+          });
+        });
+      }).catch(function () {
+        _this.setState({
+          movie: {}
+        });
+
+        _this.props.history.goBack();
+      });
+    };
+
+    _this.state = {
+      movie: null,
+      relativeMovies: [],
+      _id: _this.props.match.params.id
+    };
+    return _this;
   }
 
   _createClass(Detail, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this._getMovieDetail();
+    }
+  }, {
     key: "render",
     value: function render() {
-      return _react.default.createElement("div", null, "\u8BE6\u60C5\u9875");
+      var _this$state = this.state,
+          movie = _this$state.movie,
+          relativeMovies = _this$state.relativeMovies;
+      if (!movie) return null;
+      return _react.default.createElement("div", {
+        className: "flex-row full"
+      }, _react.default.createElement("div", {
+        className: "page-shade"
+      }, _react.default.createElement("div", {
+        className: "video-wrapper"
+      }, _react.default.createElement("div", {
+        id: "videoPlayer",
+        "data-src": site + movie.coverKey,
+        "data-video": site + movie.videoKey
+      })), _react.default.createElement("div", {
+        className: "video-sidebar"
+      }, _react.default.createElement(_reactRouterDom.Link, {
+        className: "homeLink",
+        to: '/'
+      }, "\u56DE\u5230\u9996\u9875"), _react.default.createElement(_antd.Tabs, {
+        defaultActiveKey: "1",
+        onChange: callback
+      }, _react.default.createElement(TabPane, {
+        tab: "\u5173\u4E8E\u672C\u7247",
+        key: "1"
+      }, _react.default.createElement("h1", null, movie.title), _react.default.createElement("dl", null, _react.default.createElement("dt", null, "\u8C46\u74E3\u8BC4\u5206: ", _react.default.createElement(_antd.Badge, {
+        count: movie.rate,
+        style: {
+          backgroundColor: '5#c41a'
+        }
+      }), " \u5206"), _react.default.createElement("dt", null, "\u7535\u5F71\u5206\u7C7B: ", movie.tags && movie.tags.join(' ')), _react.default.createElement("dt", null, "\u66F4\u65B0\u65F6\u95F4: ", (0, _moment.default)(movie.meta.createdAt).fromNow()), _react.default.createElement("dt", null, "\u5F71\u7247\u4ECB\u7ECD: "), _react.default.createElement("dd", null, movie.summary))), _react.default.createElement(TabPane, {
+        tab: "\u540C\u7C7B\u7535\u5F71",
+        key: "2"
+      }, relativeMovies.map(function (item) {
+        return _react.default.createElement(_reactRouterDom.Link, {
+          key: item._id,
+          className: "media",
+          to: "/detail/".concat(item._id)
+        }, _react.default.createElement("img", {
+          width: "60",
+          className: "align-self-center mr-3",
+          src: site + item.posterKey
+        }), _react.default.createElement("div", {
+          className: "media-body"
+        }, _react.default.createElement("h6", {
+          className: "media-title"
+        }, item.title), _react.default.createElement("ul", {
+          className: "list-unstyled"
+        }, item.pubdate && item.pubdate.map(function (it, i) {
+          _react.default.createElement("li", {
+            key: i
+          }, (0, _moment.default)(it.date).format('YYYY.MM'), it.country);
+        }))));
+      }))))));
     }
   }]);
 
@@ -156,7 +278,7 @@ function (_Component) {
 }(_react.Component);
 
 exports.default = Detail;
-},{"react":"../node_modules/react/index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/es/index.js","antd":"../node_modules/antd/es/index.js","../../lib/request":"lib/request.js","moment":"../node_modules/moment/moment.js","moment/locale/zh-cn":"../node_modules/moment/locale/zh-cn.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -183,7 +305,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56869" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65047" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

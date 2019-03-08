@@ -21,6 +21,11 @@ const useMiddlewares = (app) => {
     await connect()
     initSchemas()
 
+    // require('./tasks/movie')
+    // require('./tasks/api')
+    // require('./tasks/trailer')
+    // require('./tasks/qiniu')
+
     const app = new Koa()
     await useMiddlewares(app)
     

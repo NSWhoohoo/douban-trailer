@@ -81,7 +81,7 @@ async function fetchMovie(item) {
                         let country = '未知'
     
                         if (parts[1]) {
-                            country = parts[1].split(')')
+                            country = parts[1].split(')')[0]
                         }
     
                         pubdates.push({
