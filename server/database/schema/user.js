@@ -53,6 +53,7 @@ userSchema.pre('save', function(next) {
 })
 
 userSchema.pre('save', function(next) {
+    let user = this
     if (!user.isModified('password')) return next()
     
     bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
@@ -65,8 +66,6 @@ userSchema.pre('save', function(next) {
             next()
         })
     })
-
-    next()
 })
 
 userSchema.methods = {

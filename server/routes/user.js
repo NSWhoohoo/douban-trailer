@@ -5,12 +5,13 @@ const {
 
 const { controller, get, post, put, del, use, all } = require('../lib/decorator')
 
-@controller('/api/v0/user')
+@controller('/admin')
 export class userController {
     @post('/login')
     async login (ctx, next) {
-        const {email, pasword} = ctx.request.body
-        const matchData = await checkPassword(email, pasword)
+        const {email, password} = ctx.request.body
+
+        const matchData = await checkPassword(email, password)
 
         if (!matchData.user) {
             return (ctx.body = {
@@ -26,7 +27,7 @@ export class userController {
         }
 
         return (ctx.body = {
-            success: true,
+            success: false,
             err: '密码不正确'
         })
     }

@@ -1,9 +1,9 @@
 const Koa = require('Koa')
 const views = require('koa-views')
 const { resolve } = require('path')
-const { connect, initSchemas } = require('./database/init')
+const { connect, initSchemas, initAmdin } = require('./database/init')
 const R = require('ramda')
-const MIDDLEWARES = ['router', 'parcel']
+const MIDDLEWARES = ['common','router', 'parcel']
 
 const useMiddlewares = (app) => {
     R.map(
@@ -20,6 +20,7 @@ const useMiddlewares = (app) => {
 ;(async () => {
     await connect()
     initSchemas()
+    initAmdin()
 
     // require('./tasks/movie')
     // require('./tasks/api')
